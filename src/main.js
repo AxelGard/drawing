@@ -52,11 +52,12 @@ class HexPoint {
 	loadModel() {
 		if (this.y < 0.5) {
 			this.modelPath = heightTo3model.get("water");
-		} else if (this.y < 0.7) {
+		} else if (this.y < 0.9) {
 			this.modelPath = heightTo3model.get("grass");
 		} else {
 			this.modelPath = heightTo3model.get("mountain");	
 		}	
+		this.y *= 0.2;
 		loader.load(
 			this.modelPath,
 			(gltf) => {
