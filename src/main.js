@@ -21,6 +21,58 @@ camera.position.z = 10;
 
 const loader = new GLTFLoader();
 
+
+const randomNum = (min, max) => {
+	return Math.random() * (max - min) + min
+  }
+
+
+function perlinNoise(x, y, z) {
+	const p = new THREE.Vector3(x, y, z);
+	const noise = new THREE.Vector3();
+	noise.x = Math.sin(p.x) * 43758.5453123;
+	noise.y = Math.sin(p.y) * 43758.5453123;
+	noise.z = Math.sin(p.z) * 43758.5453123;
+	return Math.abs(Math.sin(noise.dot(p)));	
+}
+
+let heightTo3model = new Map();
+heightTo3model.set("water", './assets/gltf/tiles/base/hex_water.gltf');
+heightTo3model.set("grass", './assets/gltf/tiles/base/hex_grass.gltf');
+heightTo3model.set("mountain", './assets/gltf/decoration/nature/mountain_A_grass.gltf');
+
+class HexPoint {
+	constructor(x, y, z) {
+		this.x = x;
+		this.y = y;	
+		this.z = z;
+		this.modelPath = heightTo3model.get("water");
+	}
+
+	loadModel() {
+		if (this.y < 0.5) {
+			this.modelPath = heightTo3model.get("water");
+		} else if (this.y < 0.7) {
+			this.modelPath = heightTo3model.get("grass");
+		} else {
+			this.modelPath = heightTo3model.get("mountain");	
+		}	
+		loader.load(
+			this.modelPath,
+			(gltf) => {
+				gltf.scene.position.set(this.x, this.y, this.z);
+				scene.add(gltf.scene);
+			},
+			(progress) => {
+				console.log('Loading progress:', (progress.loaded / progress.total) * 100 + '%');
+			},
+			(error) => {
+				console.error('An error occurred loading the model:', error);
+			}
+		);
+	}
+}
+
 function loadModel(modelPath, position) {
     loader.load(
         modelPath,
@@ -43,22 +95,21 @@ document.addEventListener('keydown', (event) => {
 
     switch (event.key) {
         case 'w':
-            camera.position.z -= moveDistance;
+            camera.rotation.z -= moveDistance;
             break;
         case 's':
-            camera.position.z += moveDistance;
+            camera.rotation.z += moveDistance;
             break;
         case 'a':
-            camera.position.x -= moveDistance;
+            camera.rotation.x -= moveDistance;
             break;
         case 'd':
-            camera.position.x += moveDistance;
+            camera.rotation.x += moveDistance;
             break;
     }
 });
 
-// Function to create a hexagonal grid of hex grass models
-function createGround(modelPath, rows, cols, spacing) {
+function createGround( rows, cols, spacing) {
     const hexWidth = spacing;
     const hexHeight = Math.sqrt(3) / 2 * spacing;
 
@@ -66,13 +117,14 @@ function createGround(modelPath, rows, cols, spacing) {
         for (let j = 0; j < cols; j++) {
             const xOffset = j * hexWidth + (i % 2) * (hexWidth / 2);
             const zOffset = i * hexHeight;
-            loadModel(modelPath, { x: xOffset, y: Math.random(1,2), z: zOffset });
+            let p = new HexPoint(xOffset, 1, zOffset );
+			p.y = perlinNoise(xOffset, 1, zOffset);
+			p.loadModel();
         }
     }
 }
 
-// Load a hexagonal grid of hex grass models
-createGround('./assets/gltf/tiles/base/hex_grass.gltf', 10, 10, 2);
+createGround(10, 10, 2);
 
 function animate() {
     requestAnimationFrame(animate);
