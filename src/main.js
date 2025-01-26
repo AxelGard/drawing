@@ -30,10 +30,10 @@ const randomNum = (min, max) => {
 function perlinNoise(x, y, z) {
 	const p = new THREE.Vector3(x, y, z);
 	const noise = new THREE.Vector3();
-	noise.x = Math.sin(p.x) * 43758.5453123;
-	noise.y = Math.sin(p.y) * 43758.5453123;
-	noise.z = Math.sin(p.z) * 43758.5453123;
-	return Math.abs(Math.sin(noise.dot(p)));	
+	noise.x = Math.sin(p.x * 0.01) * 43758.5453123;
+	noise.y = Math.sin(p.y * 0.01) * 43758.5453123;
+	noise.z = Math.sin(p.z * 0.01) * 43758.5453123;
+	return Math.abs(Math.sin(noise.dot(p) * 0.01));	
 }
 
 let heightTo3model = new Map();
@@ -91,25 +91,31 @@ function loadModel(modelPath, position) {
 
 // Add event listener for keyboard controls
 document.addEventListener('keydown', (event) => {
-    const moveDistance = 0.5; // Adjust the movement speed as needed
+    const moveDistance = 0.1; // Adjust the movement speed as needed
 
     switch (event.key) {
         case 'w':
-            camera.rotation.z -= moveDistance;
+            camera.position.z -= moveDistance;
             break;
         case 's':
-            camera.rotation.z += moveDistance;
+            camera.position.z += moveDistance;
             break;
         case 'a':
-            camera.rotation.x -= moveDistance;
+            camera.position.x -= moveDistance;
             break;
         case 'd':
-            camera.rotation.x += moveDistance;
+            camera.position.x += moveDistance;
+            break;
+        case 'Shift':
+            camera.position.y -= moveDistance;
+            break;
+        case ' ':
+            camera.position.y += moveDistance;
             break;
     }
 });
 
-function createGround( rows, cols, spacing) {
+function createGround(rows, cols, spacing) {
     const hexWidth = spacing;
     const hexHeight = Math.sqrt(3) / 2 * spacing;
 
@@ -117,14 +123,14 @@ function createGround( rows, cols, spacing) {
         for (let j = 0; j < cols; j++) {
             const xOffset = j * hexWidth + (i % 2) * (hexWidth / 2);
             const zOffset = i * hexHeight;
-            let p = new HexPoint(xOffset, 1, zOffset );
-			p.y = perlinNoise(xOffset, 1, zOffset);
-			p.loadModel();
+            let p = new HexPoint(xOffset, 1, zOffset);
+            p.y = perlinNoise(xOffset, 1, zOffset);
+            p.loadModel();
         }
     }
 }
 
-createGround(10, 10, 2);
+createGround(20, 20, 2);
 
 function animate() {
     requestAnimationFrame(animate);
