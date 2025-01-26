@@ -66,13 +66,13 @@ function createGround(modelPath, rows, cols, spacing) {
         for (let j = 0; j < cols; j++) {
             const xOffset = j * hexWidth + (i % 2) * (hexWidth / 2);
             const zOffset = i * hexHeight;
-            loadModel(modelPath, { x: xOffset, y: 0, z: zOffset });
+            loadModel(modelPath, { x: xOffset, y: Math.random(1,2), z: zOffset });
         }
     }
 }
 
 // Load a hexagonal grid of hex grass models
-createGround('./assets/gltf/tiles/base/hex_grass.gltf', 10, 10, 1.5);
+createGround('./assets/gltf/tiles/base/hex_grass.gltf', 10, 10, 2);
 
 function animate() {
     requestAnimationFrame(animate);
