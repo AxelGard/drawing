@@ -17,24 +17,62 @@ pointLight.position.set(5, 5, 5);
 scene.add(pointLight);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-camera.position.z = 5;
+camera.position.z = 10;
 
 const loader = new GLTFLoader();
 
-function loadModel(modelPath) {
-	loader.load(
-		modelPath,
-		(gltf) => {
-			scene.add(gltf.scene);
-		},
-		(progress) => {
-			console.log('Loading progress:', (progress.loaded / progress.total) * 100 + '%');
-		},
-		(error) => {
-			console.error('An error occurred loading the model:', error);
-		}
-	);
+function loadModel(modelPath, position) {
+    loader.load(
+        modelPath,
+        (gltf) => {
+            gltf.scene.position.set(position.x, position.y, position.z);
+            scene.add(gltf.scene);
+        },
+        (progress) => {
+            console.log('Loading progress:', (progress.loaded / progress.total) * 100 + '%');
+        },
+        (error) => {
+            console.error('An error occurred loading the model:', error);
+        }
+    );
 }
+
+// Add event listener for keyboard controls
+document.addEventListener('keydown', (event) => {
+    const moveDistance = 0.5; // Adjust the movement speed as needed
+
+    switch (event.key) {
+        case 'w':
+            camera.position.z -= moveDistance;
+            break;
+        case 's':
+            camera.position.z += moveDistance;
+            break;
+        case 'a':
+            camera.position.x -= moveDistance;
+            break;
+        case 'd':
+            camera.position.x += moveDistance;
+            break;
+    }
+});
+
+// Function to create a hexagonal grid of hex grass models
+function createGround(modelPath, rows, cols, spacing) {
+    const hexWidth = spacing;
+    const hexHeight = Math.sqrt(3) / 2 * spacing;
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            const xOffset = j * hexWidth + (i % 2) * (hexWidth / 2);
+            const zOffset = i * hexHeight;
+            loadModel(modelPath, { x: xOffset, y: 0, z: zOffset });
+        }
+    }
+}
+
+// Load a hexagonal grid of hex grass models
+createGround('./assets/gltf/tiles/base/hex_grass.gltf', 10, 10, 1.5);
 
 function animate() {
     requestAnimationFrame(animate);
@@ -42,5 +80,4 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-loadModel('./assets/gltf/buildings/blue/building_home_A_blue.gltf');
 animate();
