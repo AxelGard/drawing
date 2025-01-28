@@ -41,23 +41,28 @@ heightTo3model.set("water", './assets/gltf/tiles/base/hex_water.gltf');
 heightTo3model.set("grass", './assets/gltf/tiles/base/hex_grass.gltf');
 heightTo3model.set("mountain", './assets/gltf/decoration/nature/mountain_A_grass.gltf');
 
+let world2DArray; // 2D array of hex points
+
 class HexPoint {
-	constructor(x, y, z) {
+	constructor(x, y, z, world2DArray_i, world2DArray_j) {
 		this.x = x;
 		this.y = y;	
 		this.z = z;
+        this.world2DArray_i = world2DArray_i;
+        this.world2DArray_j = world2DArray_j;
 		this.modelPath = heightTo3model.get("water");
 	}
 
 	loadModel() {
 		if (this.y < 0.5) {
 			this.modelPath = heightTo3model.get("water");
-		} else if (this.y < 0.9) {
+		} else if (this.y < 0.95) {
 			this.modelPath = heightTo3model.get("grass");
 		} else {
 			this.modelPath = heightTo3model.get("mountain");	
+            loadModel(heightTo3model.get("grass"), {x: this.x, y: 1, z: this.z});
 		}	
-		this.y *= 0.2;
+		this.y = 1;
 		loader.load(
 			this.modelPath,
 			(gltf) => {
@@ -124,7 +129,7 @@ function createGround(rows, cols, spacing) {
         for (let j = 0; j < cols; j++) {
             const xOffset = j * hexWidth + (i % 2) * (hexWidth / 2);
             const zOffset = i * hexHeight;
-            let p = new HexPoint(xOffset, 1, zOffset);
+            let p = new HexPoint(xOffset, 1, zOffset, i, j);
             p.y = perlinNoise(xOffset, 1, zOffset);
             p.loadModel();
         }
