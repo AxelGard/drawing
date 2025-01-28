@@ -27,12 +27,12 @@ const randomNum = (min, max) => {
   }
 
 
-function perlinNoise(x, y, z) {
+function perlinNoise(x, y, z, seed = 12345.6789) {
 	const p = new THREE.Vector3(x, y, z);
 	const noise = new THREE.Vector3();
-	noise.x = Math.sin(p.x * 0.01) * 43758.5453123;
-	noise.y = Math.sin(p.y * 0.01) * 43758.5453123;
-	noise.z = Math.sin(p.z * 0.01) * 43758.5453123;
+	noise.x = Math.sin(p.x * 0.01) * seed;
+	noise.y = Math.sin(p.y * 0.01) * seed;
+	noise.z = Math.sin(p.z * 0.01) * seed;
 	return Math.abs(Math.sin(noise.dot(p) * 0.01));	
 }
 
