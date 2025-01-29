@@ -95,6 +95,17 @@ function loadModel(modelPath, position) {
     );
 }
 
+function getSeed() {
+    // seed need to be value 5 numbers long and 5 decimal places
+    // example 12345.6789, but can be any number.
+    // it should be based on the current time
+    let date = new Date();
+    let seed = date.getTime();
+    console.log(seed);
+    return seed;
+}
+
+
 // Add event listener for keyboard controls
 document.addEventListener('keydown', (event) => {
     const moveDistance = 0.1; // Adjust the movement speed as needed
@@ -124,13 +135,13 @@ document.addEventListener('keydown', (event) => {
 function createGround(rows, cols, spacing) {
     const hexWidth = spacing;
     const hexHeight = Math.sqrt(3) / 2 * spacing;
-
+    let time_as_seed = getSeed(); 
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
             const xOffset = j * hexWidth + (i % 2) * (hexWidth / 2);
             const zOffset = i * hexHeight;
             let p = new HexPoint(xOffset, 1, zOffset, i, j);
-            p.y = perlinNoise(xOffset, 1, zOffset);
+            p.y = perlinNoise(xOffset, 1, zOffset, time_as_seed);
             p.loadModel();
         }
     }
